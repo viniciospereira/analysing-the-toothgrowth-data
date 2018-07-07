@@ -11,7 +11,7 @@ output:
     toc: yes
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, fig.align='center'}
 knitr::opts_chunk$set(echo = TRUE)
 require(datasets)
 require(dplyr)
@@ -63,7 +63,8 @@ In order to make the data easier to understand, let's rename the variable "len" 
 ```{r}
 ToothGrowth <- rename(ToothGrowth, length = len)
 ToothGrowth <- rename(ToothGrowth, supplement = supp)
-ToothGrowth$supplement <- recode(ToothGrowth$supplement, OJ = "orange juice", VC = "ascorbic acid")
+ToothGrowth$supplement <- recode(ToothGrowth$supplement, OJ = "orange juice", 
+                                 VC = "ascorbic acid")
 ```
 
 
@@ -89,7 +90,8 @@ ggplot(data = ToothGrowth, aes(x = dose, y = length, fill = supplement)) +
      geom_boxplot(aes(alpha = 0.5)) +
      scale_fill_brewer(palette = "Set1") +
      stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
-                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, 
+                  width = .76, color = "black") +
      ggtitle("FIGURE 2: Tooth length X dose of vitamin C")
 ```
 
@@ -103,9 +105,9 @@ Let's summarise and compare the data to see how close the mean is for each dose 
 dose | orange juice                               | ascorbic acid
 -----|------------------------------------------------|------------------------------------------------
 []() | **Min., 1st Qu., Median, Mean, 3rd Qu., Max.** | **Min., 1st Qu., Median, Mean, 3rd Qu., Max.**
-0.5  | `r summary(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "orange juice",]$length)` | `r summary(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "ascorbic acid",]$length)` 
-1    | `r summary(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "orange juice",]$length)` | `r summary(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "ascorbic acid",]$length)` 
-2    | `r summary(ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "orange juice",]$length)` | `r summary(ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "ascorbic acid",]$length)` 
+0.5  | $`r summary(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "orange juice",]$length)`$ | $`r summary(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "ascorbic acid",]$length)`$ 
+1    | $`r summary(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "orange juice",]$length)`$ | $`r summary(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "ascorbic acid",]$length)`$ 
+2    | $`r summary(ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "orange juice",]$length)`$ | $`r summary(ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "ascorbic acid",]$length)`$ 
 
 The data confirms what the FIGURE 2 suggests, the length tooth mean of the ascorbic acid group is much lower than that of orange juice group, except when the dose of vitamin C is 2 mg/day. I this latter case the ascorbic acid group mean is 0.08 greater than the orange juice group.
 
@@ -145,10 +147,10 @@ We will compare the guinea pigs that received 0.5 mg/day of vitamin C.
 * Ha: There **is a diference** between the guinea pigs that received 0.5 mg/day of vitamin C trough orange juice and ascorbic acid.
 
 ```{r}
-t.test.05.oj.aa <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "orange juice"
-                                      ,]$length,
-                          ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "ascorbic acid"
-                                      ,]$length)
+t.test.05.oj.aa <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == 
+                                           "orange juice",]$length,
+                          ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == 
+                                           "ascorbic acid",]$length)
 t.test.05.oj.aa
 ```
 
@@ -160,10 +162,10 @@ We will compare the guinea pigs that received 1 mg/day of vitamin C.
 * Ha: There **is a diference** between the guinea pigs that received 1 mg/day of vitamin C trough orange juice and ascorbic acid.
 
 ```{r}
-t.test.10.oj.aa <- t.test(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "orange juice"
-                                      ,]$length,
-                          ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "ascorbic acid"
-                                      ,]$length)
+t.test.10.oj.aa <- t.test(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement ==
+                                           "orange juice",]$length,
+                          ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == 
+                                           "ascorbic acid",]$length)
 t.test.10.oj.aa
 ```
 
@@ -175,10 +177,10 @@ We will compare the guinea pigs that received 2 mg/day of vitamin C.
 * Ha: There **is a diference** between the guinea pigs that received 2 mg/day of vitamin C trough orange juice and ascorbic acid.
 
 ```{r}
-t.test.20.oj.aa <- t.test(ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "orange juice"
-                                      ,]$length,
-                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "ascorbic acid"
-                                      ,]$length)
+t.test.20.oj.aa <- t.test(ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == 
+                                           "orange juice",]$length,
+                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == 
+                                           "ascorbic acid",]$length)
 t.test.20.oj.aa
 ```
 
@@ -193,10 +195,10 @@ We will compare the guinea pigs that received vitamin C trough orange juice.
 * Ha: There **is a difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough orange juice and the ones that received 1 mg/day of vitamin C trough orange juice.
 
 ```{r}
-t.test.oj.05.10 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "orange juice"
-                                      ,]$length,
-                          ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "orange juice"
-                                      ,]$length)
+t.test.oj.05.10 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == 
+                                           "orange juice",]$length,
+                          ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == 
+                                           "orange juice",]$length)
 t.test.oj.05.10
 ```
 
@@ -208,10 +210,10 @@ We will compare the guinea pigs that received vitamin C trough orange juice.
 * Ha: There **is a difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough orange juice and the ones that received 2 mg/day of vitamin C trough orange juice.
 
 ```{r}
-t.test.oj.05.20 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "orange juice"
-                                      ,]$length,
-                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "orange juice"
-                                      ,]$length)
+t.test.oj.05.20 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == 
+                                           "orange juice",]$length,
+                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == 
+                                           "orange juice",]$length)
 t.test.oj.05.20
 ```
 
@@ -223,10 +225,10 @@ We will compare the guinea pigs that received vitamin C trough orange juice.
 * Ha: There **is a difference** between the guinea pigs that received 1 mg/day of vitamin C trough orange juice and the ones that received 2 mg/day of vitamin C trough orange juice.
 
 ```{r}
-t.test.oj.10.20 <- t.test(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "orange juice"
-                                      ,]$length,
-                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "orange juice"
-                                      ,]$length)
+t.test.oj.10.20 <- t.test(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == 
+                                           "orange juice",]$length,
+                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == 
+                                           "orange juice",]$length)
 t.test.oj.10.20
 ```
 
@@ -238,10 +240,10 @@ We will compare the guinea pigs that received vitamin C trough ascorbic acid.
 * Ha: There **is a difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough ascorbic acid and the ones that received 1 mg/day of vitamin C trough ascorbic acid.
 
 ```{r}
-t.test.aa.05.10 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "ascorbic acid"
-                                      ,]$length,
-                          ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "ascorbic acid"
-                                      ,]$length)
+t.test.aa.05.10 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == 
+                                           "ascorbic acid",]$length,
+                          ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == 
+                                           "ascorbic acid",]$length)
 t.test.aa.05.10
 ```
 
@@ -253,10 +255,10 @@ We will compare the guinea pigs that received vitamin C trough ascorbic acid.
 * Ha: There **is a difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough orange juice and the ones that received 2 mg/day of vitamin C trough ascorbic acid.
 
 ```{r}
-t.test.aa.05.20 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "ascorbic acid"
-                                      ,]$length,
-                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "ascorbic acid"
-                                      ,]$length)
+t.test.aa.05.20 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == 
+                                           "ascorbic acid",]$length,
+                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == 
+                                           "ascorbic acid",]$length)
 t.test.aa.05.20
 ```
 
@@ -268,10 +270,10 @@ We will compare the guinea pigs that received vitamin C trough ascorbic acid.
 * Ha: There **is a difference** between the guinea pigs that received 1 mg/day of vitamin C trough ascorbic acid and the ones that received 2 mg/day of vitamin C trough ascorbic acid.
 
 ```{r}
-t.test.aa.10.20 <- t.test(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "ascorbic acid"
-                                      ,]$length,
-                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "ascorbic acid"
-                                      ,]$length)
+t.test.aa.10.20 <- t.test(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == 
+                                           "ascorbic acid",]$length,
+                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == 
+                                           "ascorbic acid",]$length)
 t.test.aa.10.20
 ```
 
@@ -281,46 +283,54 @@ t.test.aa.10.20
 As we saw above, performing multiple comparisons increases the probability of incorrectly rejecting a true hypothesis. To prevent that we will use the Benjamini-Hochberg correction to adjust our P-values.
 
 ```{r}
-pvalues <- c(t.test.05.oj.aa$p.value, t.test.10.oj.aa$p.value, t.test.20.oj.aa$p.value, t.test.oj.05.10$p.value, t.test.oj.05.20$p.value, t.test.oj.10.20$p.value, t.test.aa.05.10$p.value, t.test.aa.05.20$p.value, t.test.aa.10.20$p.value)
+pvalues <- c(t.test.05.oj.aa$p.value, t.test.10.oj.aa$p.value, t.test.20.oj.aa$p.value,
+             t.test.oj.05.10$p.value, t.test.oj.05.20$p.value, t.test.oj.10.20$p.value,
+             t.test.aa.05.10$p.value, t.test.aa.05.20$p.value, t.test.aa.10.20$p.value)
 padjust <- p.adjust(pvalues, method = "BH")
 ```
 
 Considering the adjusted P-values we have the results:
 
-* **Reject** Ho: *mu*_dose-0.5-orange-juice = *mu*_dose-0.5-ascorbic-acid as P-value' = `r padjust[1]` <= *alpha* = 0.05.
+* **Reject** Ho: *mu*_dose-0.5-orange-juice = *mu*_dose-0.5-ascorbic-acid as P-value' = $`r padjust[1]`$ <= *alpha* = 0.05.
 
 ```{r fig.width = 10, fig.height = 4}
-ggplot(data = ToothGrowth[ToothGrowth$dose == 0.5,], aes(x = dose, y = length, fill = supplement)) +
+ggplot(data = ToothGrowth[ToothGrowth$dose == 0.5,], aes(x = dose, y = length, 
+                                                         fill = supplement)) +
      geom_boxplot(alpha = 0.5) +
      scale_fill_brewer(palette = "Set1") +
      stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
-                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, 
+                  width = .76, color = "black") +
      ggtitle("FIGURE 3: dose-0.5-orange-juice vs dose-0.5-ascorbic-acid")
 ```
 
-* **Reject** Ho: *mu*_dose-1.0-orange-juice = *mu*_dose-1.0-ascorbic-acid as P-value' = `r padjust[2]` <= *alpha* = 0.05.
+* **Reject** Ho: *mu*_dose-1.0-orange-juice = *mu*_dose-1.0-ascorbic-acid as P-value' = $`r padjust[2]`$ <= *alpha* = 0.05.
 
 ```{r fig.width = 10, fig.height = 4}
-ggplot(data = ToothGrowth[ToothGrowth$dose == 1,], aes(x = dose, y = length, fill = supplement)) +
+ggplot(data = ToothGrowth[ToothGrowth$dose == 1,], aes(x = dose, y = length, 
+                                                       fill = supplement)) +
      geom_boxplot(alpha = 0.5) +
      scale_fill_brewer(palette = "Set1") +
      stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
-                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, 
+                  width = .76, color = "black") +
      ggtitle("FIGURE 4: dose-1.0-orange-juice vs dose-1.0-ascorbic-acid")
 ```
 
-* **Fail to reject** Ho: *mu*_dose-2.0-orange-juice = *mu*_dose-2.0-ascorbic-acid as P-value' = `r padjust[3]` > *alpha* = 0.05.
+* **Fail to reject** Ho: *mu*_dose-2.0-orange-juice = *mu*_dose-2.0-ascorbic-acid as P-value' = $`r padjust[3]`$ > *alpha* = 0.05.
 
 ```{r fig.width = 10, fig.height = 4}
-ggplot(data = ToothGrowth[ToothGrowth$dose == 2,], aes(x = dose, y = length, fill = supplement)) +
+ggplot(data = ToothGrowth[ToothGrowth$dose == 2,], aes(x = dose, y = length, 
+                                                       fill = supplement)) +
      geom_boxplot(alpha = 0.5) +
      scale_fill_brewer(palette = "Set1") +
      stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
-                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, 
+                  width = .76, color = "black") +
      ggtitle("FIGURE 5: dose-2.0-orange-juice vs dose-2.0-ascorbic-acid")
 ```
 
-* **Reject** Ho: *mu*_orange-juice-dose-0.5 = *mu*_orange-juice-dose-1.0 as P-value' = `r padjust[4]` <= *alpha* = 0.05.
+* **Reject** Ho: *mu*_orange-juice-dose-0.5 = *mu*_orange-juice-dose-1.0 as P-value' = $`r padjust[4]`$ <= *alpha* = 0.05.
 
 ```{r fig.width = 10, fig.height = 4}
 ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 1.0) & 
@@ -329,11 +339,12 @@ ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 1.0) &
      geom_boxplot(alpha = 0.5) +
      scale_fill_brewer(palette = "Set1") +
      stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
-                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, 
+                  width = .76, color = "black") +
      ggtitle("FIGURE 6: orange-juice-dose-0.5 vs orange-juice-dose-1.0")
 ```
 
-* **Reject** Ho: *mu*_orange-juice-dose-0.5 = *mu*_orange-juice-dose-2.0 as P-value' = `r padjust[5]` <= *alpha* = 0.05.
+* **Reject** Ho: *mu*_orange-juice-dose-0.5 = *mu*_orange-juice-dose-2.0 as P-value' = $`r padjust[5]`$ <= *alpha* = 0.05.
 
 ```{r fig.width = 10, fig.height = 4}
 ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 2.0) & 
@@ -342,11 +353,12 @@ ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 2.0) &
      geom_boxplot(alpha = 0.5) +
      scale_fill_brewer(palette = "Set1") +
      stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
-                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, 
+                  width = .76, color = "black") +
      ggtitle("FIGURE 7: orange-juice-dose-0.5 vs orange-juice-dose-2.0")
 ```
 
-* **Reject** Ho: *mu*_orange-juice-dose-1.0 = *mu*_orange-juice-dose-2.0 as P-value' = `r padjust[6]` <= *alpha* = 0.05.
+* **Reject** Ho: *mu*_orange-juice-dose-1.0 = *mu*_orange-juice-dose-2.0 as P-value' = $`r padjust[6]`$ <= *alpha* = 0.05.
 
 ```{r fig.width = 10, fig.height = 4}
 ggplot(data = ToothGrowth[(ToothGrowth$dose == 1.0 | ToothGrowth$dose == 2.0) & 
@@ -355,11 +367,12 @@ ggplot(data = ToothGrowth[(ToothGrowth$dose == 1.0 | ToothGrowth$dose == 2.0) &
      geom_boxplot(alpha = 0.5) +
      scale_fill_brewer(palette = "Set1") +
      stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
-                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, 
+                  width = .76, color = "black") +
      ggtitle("FIGURE 8: orange-juice-dose-1.0 vs orange-juice-dose-2.0")
 ```
 
-* **Reject** Ho: *mu*_ascorbic-acid-dose-0.5 = *mu*_ascorbic-acid-dose-1.0 as P-value' = `r padjust[7]` <= *alpha* = 0.05.
+* **Reject** Ho: *mu*_ascorbic-acid-dose-0.5 = *mu*_ascorbic-acid-dose-1.0 as P-value' = $`r padjust[7]`$ <= *alpha* = 0.05.
 
 ```{r fig.width = 10, fig.height = 4}
 ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 1.0) & 
@@ -368,11 +381,12 @@ ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 1.0) &
      geom_boxplot(alpha = 0.5) +
      scale_fill_brewer(palette = "Set1") +
      stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
-                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, 
+                  width = .76, color = "black") +
      ggtitle("FIGURE 9: ascorbic-acid-dose-0.5 vs ascorbic-acid-dose-1.0")
 ```
 
-* **Reject** Ho: *mu*_ascorbic-acid-dose-0.5 = *mu*_ascorbic-acid-dose-2.0 as P-value' = `r padjust[8]` <= *alpha* = 0.05.
+* **Reject** Ho: *mu*_ascorbic-acid-dose-0.5 = *mu*_ascorbic-acid-dose-2.0 as P-value' = $`r padjust[8]`$ <= *alpha* = 0.05.
 
 ```{r fig.width = 10, fig.height = 4}
 ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 2.0) & 
@@ -381,11 +395,12 @@ ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 2.0) &
      geom_boxplot(alpha = 0.5) +
      scale_fill_brewer(palette = "Set1") +
      stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
-                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, 
+                  width = .76, color = "black") +
      ggtitle("FIGURE 10: ascorbic-acid-dose-0.5 vs ascorbic-acid-dose-2.0")
 ```
 
-* **Reject** Ho: *mu*_ascorbic-acid-dose-1.0 = *mu*_ascorbic-acid-dose-2.0 as P-value' = `r padjust[9]` <= *alpha* = 0.05.
+* **Reject** Ho: *mu*_ascorbic-acid-dose-1.0 = *mu*_ascorbic-acid-dose-2.0 as P-value' = $`r padjust[9]`$ <= *alpha* = 0.05.
 
 ```{r fig.width = 10, fig.height = 4}
 ggplot(data = ToothGrowth[(ToothGrowth$dose == 1 | ToothGrowth$dose == 2) & 
@@ -394,7 +409,8 @@ ggplot(data = ToothGrowth[(ToothGrowth$dose == 1 | ToothGrowth$dose == 2) &
      geom_boxplot(alpha = 0.5) +
      scale_fill_brewer(palette = "Set1") +
      stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
-                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, 
+                  width = .76, color = "black") +
      ggtitle("FIGURE 9: ascorbic-acid-dose-1.0 vs ascorbic-acid-dose-2.0")
 ```
 
