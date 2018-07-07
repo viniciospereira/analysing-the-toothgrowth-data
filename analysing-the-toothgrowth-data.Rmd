@@ -2,12 +2,12 @@
 title: "The Effect of Vitamin C on Tooth Growth in Guinea Pigs"
 author: "Vinicios Pereira"
 date: "07/07/2018"
-output: 
+output:
+  pdf_document:
+    toc: yes
   html_document:
     fig_caption: yes
     theme: cosmo
-    toc: yes
-  pdf_document:
     toc: yes
 ---
 
@@ -30,7 +30,7 @@ The goal of this analysis is to explore this data by following the steps below:
 1. Load the ToothGrowth data and perform some basic exploratory data analyses
 2. Provide a basic summary of the data.
 3. Use confidence intervals and/or hypothesis tests to compare tooth growth by supplement and dose.
-4. State your conclusions and the assumptions needed for your conclusions.
+4. State conclusions and the assumptions needed for conclusions.
 
 
 
