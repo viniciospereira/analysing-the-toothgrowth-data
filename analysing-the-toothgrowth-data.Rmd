@@ -1,0 +1,410 @@
+---
+title: "The Effect of Vitamin C on Tooth Growth in Guinea Pigs"
+author: "Vinicios Pereira"
+date: "07/07/2018"
+output: 
+  html_document:
+    fig_caption: yes
+    theme: cosmo
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(datasets)
+require(dplyr)
+require(ggplot2)
+require(reshape2)
+require(ggpubr)
+require(RColorBrewer)
+```
+
+## Synopsis
+
+Each animal, from a group of 60 guinea pig, received one of three dose levels of vitamin C (0.5, 1, and 2 mg/day) by one of two delivery methods, orange juice or ascorbic acid (a form of vitamin C and coded as VC). The response is the length of odontoblasts (cells responsible for tooth growth) in this group.
+
+The goal of this analysis is to explore this data by following the steps below:
+
+1. Load the ToothGrowth data and perform some basic exploratory data analyses
+2. Provide a basic summary of the data.
+3. Use confidence intervals and/or hypothesis tests to compare tooth growth by supplement and dose.
+4. State your conclusions and the assumptions needed for your conclusions.
+
+
+
+## Data Processing
+
+
+### Getting and Cleaning the Data
+
+The data for this analysis comes in the R datasets package and its documentation can be found [here](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/ToothGrowth.html).
+
+```{r}
+str(ToothGrowth)
+```
+As we can see in the summary above, the data frame has 60 observations on 3 variables. According to the documentation, the variables are:
+
+Variable                    | Type                       | Description              
+----------------------------|----------------------------|----------------------------
+len                         | numeric                    | Tooth length.              
+supp                        | factor                     | Supplement type (VC or OJ).                
+dose                        | numeric                    | Dose in milligrams/day.    
+
+Let's have a loot on the top 6 lines of the data frame:
+
+```{r}
+head(ToothGrowth)
+```
+
+In order to make the data easier to understand, let's rename the variable "len" to "length", the variable "supp" to "supplement", and replace the codes VC and OJ for "vitamin C" and "orange juice" respectively.
+
+```{r}
+ToothGrowth <- rename(ToothGrowth, length = len)
+ToothGrowth <- rename(ToothGrowth, supplement = supp)
+ToothGrowth$supplement <- recode(ToothGrowth$supplement, OJ = "orange juice", VC = "ascorbic acid")
+```
+
+
+### Basic exploratory data analyses
+
+As a first step in exploring the data, let's plot the points into a graph showing how the length of the tooth by the dose of vitamin C and the method how it was delivered.
+
+```{r fig.width = 10, fig.height = 5}
+ggplot(data = ToothGrowth, aes(x = dose, y = length, col = supplement)) +
+     geom_point() +
+     scale_color_brewer(palette = "Set1") +
+     ggtitle("FIGURE 1: Tooth length X dose of vitamin C") +
+     geom_smooth(method = lm, se = TRUE, na.rm = TRUE, alpha = 0.3)
+```
+
+This first figure shows us that there seems to be a relationship between tooth size and the dose of vitamin C. It also shows us that the delivery method also seems to have an impact on the tooth size. For smaller doses of vitamin C, the administration through orange juice seems to have a bigger impact on the tooth size. However, as the doses increase the ascorbic acid impact approaches to the orange juice impact.
+
+In the FIGURE 2, we will analise the box plot of the tooth length per dose of vitamin C.
+
+```{r fig.width = 10, fig.height = 7}
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+ggplot(data = ToothGrowth, aes(x = dose, y = length, fill = supplement)) +
+     geom_boxplot(aes(alpha = 0.5)) +
+     scale_fill_brewer(palette = "Set1") +
+     stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+     ggtitle("FIGURE 2: Tooth length X dose of vitamin C")
+```
+
+The figure shows that the tooth length median and mean (dotted line) for the group administrated with 0.5 mg/day through orange juice is much bigger than the group administrated with 0.5 mg/day through ascorbic acid. This difference increases in the group that received 1 mg/day. However, this difference almost disappears in the groups with the dose of vitamin C increased to 2 mg/day. In these latter groups, the medians seem to be equal and the tooth length mean of the group administered with ascorbic acid seems to be slightly bigger. The variance of the ascorbic acid is also bigger.
+
+
+### Basic summary of the data
+
+Let's summarise and compare the data to see how close the mean is for each dose of vitamin C.
+
+dose | orange juice                               | ascorbic acid
+-----|------------------------------------------------|------------------------------------------------
+[]() | **Min., 1st Qu., Median, Mean, 3rd Qu., Max.** | **Min., 1st Qu., Median, Mean, 3rd Qu., Max.**
+0.5  | `r summary(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "orange juice",]$length)` | `r summary(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "ascorbic acid",]$length)` 
+1    | `r summary(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "orange juice",]$length)` | `r summary(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "ascorbic acid",]$length)` 
+2    | `r summary(ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "orange juice",]$length)` | `r summary(ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "ascorbic acid",]$length)` 
+
+The data confirms what the FIGURE 2 suggests, the length tooth mean of the ascorbic acid group is much lower than that of orange juice group, except when the dose of vitamin C is 2 mg/day. I this latter case the ascorbic acid group mean is 0.08 greater than the orange juice group.
+
+```{r}
+dcast(ToothGrowth, dose ~ supplement, value.var = "length", fun.aggregate = mean)
+```
+
+The median comparison is even more interesting as both groups have exactly the same median when the dose is equal to 2 mg/day.
+
+```{r}
+dcast(ToothGrowth, dose ~ supplement, value.var = "length", fun.aggregate = median)
+```
+
+Other interesting patter is that the tooth length variability in the groups administrated with orange juice seems to decrease as the dose increases. In the groups administered with ascorbic acid, the dont differ much between the groups 0.5-dose and 1-dose. The ascorbic-acid-dose-2 group, however, has the greatest variability of all.
+
+```{r}
+dcast(ToothGrowth, dose ~ supplement, value.var = "length", fun.aggregate = sd)
+```
+
+The data above suggests that there is an interaction between dose and supplement.
+
+
+
+## Comparing tooth growth by dose and supplement
+
+
+When there is an interaction between factors as there seems to be in this dataset, it is often hard to tell a straight-forward, simple analysis about the data. There is no other choice but to make a lot of comparisons. However, performing multiple comparisons increases the probability of incorrectly rejecting a true hypothesis. To prevent that we will use the Benjamini-Hochberg correction to adjust our P-values.
+
+
+### Comparing orange-juice groups with ascorbic-acid groups
+
+#### T-test dose-0.5-orange-juice vs dose-0.5-ascorbic-acid
+
+We will compare the guinea pigs that received 0.5 mg/day of vitamin C.
+
+* Ho: There **is no difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough orange juice and ascorbic acid.
+* Ha: There **is a diference** between the guinea pigs that received 0.5 mg/day of vitamin C trough orange juice and ascorbic acid.
+
+```{r}
+t.test.05.oj.aa <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "orange juice"
+                                      ,]$length,
+                          ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "ascorbic acid"
+                                      ,]$length)
+t.test.05.oj.aa
+```
+
+#### T-test dose-1.0-orange-juice vs dose-1.0-ascorbic-acid
+
+We will compare the guinea pigs that received 1 mg/day of vitamin C.
+
+* Ho: There **is no difference** between the guinea pigs that received 1 mg/day of vitamin C trough orange juice and ascorbic acid.
+* Ha: There **is a diference** between the guinea pigs that received 1 mg/day of vitamin C trough orange juice and ascorbic acid.
+
+```{r}
+t.test.10.oj.aa <- t.test(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "orange juice"
+                                      ,]$length,
+                          ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "ascorbic acid"
+                                      ,]$length)
+t.test.10.oj.aa
+```
+
+#### T-test dose-2.0-orange-juice vs dose-2.0-ascorbic-acid
+
+We will compare the guinea pigs that received 2 mg/day of vitamin C.
+
+* Ho: There **is no difference** between the guinea pigs that received 2 mg/day of vitamin C trough orange juice and ascorbic acid.
+* Ha: There **is a diference** between the guinea pigs that received 2 mg/day of vitamin C trough orange juice and ascorbic acid.
+
+```{r}
+t.test.20.oj.aa <- t.test(ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "orange juice"
+                                      ,]$length,
+                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "ascorbic acid"
+                                      ,]$length)
+t.test.20.oj.aa
+```
+
+
+### Comparing dose-0.5, dose-1.0 and dose-2.0 groups
+
+#### T-test orange-juice-dose-0.5 vs orange-juice-dose-1.0
+
+We will compare the guinea pigs that received vitamin C trough orange juice.
+
+* Ho: There **is no difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough orange juice and the ones that received 1 mg/day of vitamin C trough orange juice.
+* Ha: There **is a difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough orange juice and the ones that received 1 mg/day of vitamin C trough orange juice.
+
+```{r}
+t.test.oj.05.10 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "orange juice"
+                                      ,]$length,
+                          ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "orange juice"
+                                      ,]$length)
+t.test.oj.05.10
+```
+
+#### T-test orange-juice-dose-0.5 vs orange-juice-dose-2.0
+
+We will compare the guinea pigs that received vitamin C trough orange juice.
+
+* Ho: There **is no difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough orange juice and the ones that received 2 mg/day of vitamin C trough orange juice.
+* Ha: There **is a difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough orange juice and the ones that received 2 mg/day of vitamin C trough orange juice.
+
+```{r}
+t.test.oj.05.20 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "orange juice"
+                                      ,]$length,
+                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "orange juice"
+                                      ,]$length)
+t.test.oj.05.20
+```
+
+#### T-test orange-juice-dose-1.0 vs orange-juice-dose-2.0
+
+We will compare the guinea pigs that received vitamin C trough orange juice.
+
+* Ho: There **is no difference** between the guinea pigs that received 1 mg/day of vitamin C trough orange juice and the ones that received 2 mg/day of vitamin C trough orange juice.
+* Ha: There **is a difference** between the guinea pigs that received 1 mg/day of vitamin C trough orange juice and the ones that received 2 mg/day of vitamin C trough orange juice.
+
+```{r}
+t.test.oj.10.20 <- t.test(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "orange juice"
+                                      ,]$length,
+                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "orange juice"
+                                      ,]$length)
+t.test.oj.10.20
+```
+
+#### T-test ascorbic-acid-dose-0.5 vs ascorbic-acid-dose-1.0
+
+We will compare the guinea pigs that received vitamin C trough ascorbic acid.
+
+* Ho: There **is no difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough ascorbic acid and the ones that received 1 mg/day of vitamin C trough ascorbic acid.
+* Ha: There **is a difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough ascorbic acid and the ones that received 1 mg/day of vitamin C trough ascorbic acid.
+
+```{r}
+t.test.aa.05.10 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "ascorbic acid"
+                                      ,]$length,
+                          ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "ascorbic acid"
+                                      ,]$length)
+t.test.aa.05.10
+```
+
+#### T-test ascorbic-acid-dose-0.5 vs ascorbic-acid-dose-2.0
+
+We will compare the guinea pigs that received vitamin C trough ascorbic acid.
+
+* Ho: There **is no difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough ascorbic acid and the ones that received 2 mg/day of vitamin C trough ascorbic acid.
+* Ha: There **is a difference** between the guinea pigs that received 0.5 mg/day of vitamin C trough orange juice and the ones that received 2 mg/day of vitamin C trough ascorbic acid.
+
+```{r}
+t.test.aa.05.20 <- t.test(ToothGrowth[ToothGrowth$dose == 0.5 & ToothGrowth$supplement == "ascorbic acid"
+                                      ,]$length,
+                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "ascorbic acid"
+                                      ,]$length)
+t.test.aa.05.20
+```
+
+#### T-test ascorbic-acid-dose-1.0 vs ascorbic-acid-dose-2.0
+
+We will compare the guinea pigs that received vitamin C trough ascorbic acid.
+
+* Ho: There **is no difference** between the guinea pigs that received 1 mg/day of vitamin C trough ascorbic acid and the ones that received 2 mg/day of vitamin C trough ascorbic acid.
+* Ha: There **is a difference** between the guinea pigs that received 1 mg/day of vitamin C trough ascorbic acid and the ones that received 2 mg/day of vitamin C trough ascorbic acid.
+
+```{r}
+t.test.aa.10.20 <- t.test(ToothGrowth[ToothGrowth$dose == 1 & ToothGrowth$supplement == "ascorbic acid"
+                                      ,]$length,
+                          ToothGrowth[ToothGrowth$dose == 2 & ToothGrowth$supplement == "ascorbic acid"
+                                      ,]$length)
+t.test.aa.10.20
+```
+
+
+### Results
+
+As we saw above, performing multiple comparisons increases the probability of incorrectly rejecting a true hypothesis. To prevent that we will use the Benjamini-Hochberg correction to adjust our P-values.
+
+```{r}
+pvalues <- c(t.test.05.oj.aa$p.value, t.test.10.oj.aa$p.value, t.test.20.oj.aa$p.value, t.test.oj.05.10$p.value, t.test.oj.05.20$p.value, t.test.oj.10.20$p.value, t.test.aa.05.10$p.value, t.test.aa.05.20$p.value, t.test.aa.10.20$p.value)
+padjust <- p.adjust(pvalues, method = "BH")
+```
+
+Considering the adjusted P-values we have the results:
+
+* **Reject** Ho: *mu*_dose-0.5-orange-juice = *mu*_dose-0.5-ascorbic-acid as P-value' = `r padjust[1]` <= *alpha* = 0.05.
+
+```{r fig.width = 10, fig.height = 4}
+ggplot(data = ToothGrowth[ToothGrowth$dose == 0.5,], aes(x = dose, y = length, fill = supplement)) +
+     geom_boxplot(alpha = 0.5) +
+     scale_fill_brewer(palette = "Set1") +
+     stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+     ggtitle("FIGURE 3: dose-0.5-orange-juice vs dose-0.5-ascorbic-acid")
+```
+
+* **Reject** Ho: *mu*_dose-1.0-orange-juice = *mu*_dose-1.0-ascorbic-acid as P-value' = `r padjust[2]` <= *alpha* = 0.05.
+
+```{r fig.width = 10, fig.height = 4}
+ggplot(data = ToothGrowth[ToothGrowth$dose == 1,], aes(x = dose, y = length, fill = supplement)) +
+     geom_boxplot(alpha = 0.5) +
+     scale_fill_brewer(palette = "Set1") +
+     stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+     ggtitle("FIGURE 4: dose-1.0-orange-juice vs dose-1.0-ascorbic-acid")
+```
+
+* **Fail to reject** Ho: *mu*_dose-2.0-orange-juice = *mu*_dose-2.0-ascorbic-acid as P-value' = `r padjust[3]` > *alpha* = 0.05.
+
+```{r fig.width = 10, fig.height = 4}
+ggplot(data = ToothGrowth[ToothGrowth$dose == 2,], aes(x = dose, y = length, fill = supplement)) +
+     geom_boxplot(alpha = 0.5) +
+     scale_fill_brewer(palette = "Set1") +
+     stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+     ggtitle("FIGURE 5: dose-2.0-orange-juice vs dose-2.0-ascorbic-acid")
+```
+
+* **Reject** Ho: *mu*_orange-juice-dose-0.5 = *mu*_orange-juice-dose-1.0 as P-value' = `r padjust[4]` <= *alpha* = 0.05.
+
+```{r fig.width = 10, fig.height = 4}
+ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 1.0) & 
+                               ToothGrowth$supplement == "orange juice",], 
+       aes(x = dose, y = length, fill = supplement)) +
+     geom_boxplot(alpha = 0.5) +
+     scale_fill_brewer(palette = "Set1") +
+     stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+     ggtitle("FIGURE 6: orange-juice-dose-0.5 vs orange-juice-dose-1.0")
+```
+
+* **Reject** Ho: *mu*_orange-juice-dose-0.5 = *mu*_orange-juice-dose-2.0 as P-value' = `r padjust[5]` <= *alpha* = 0.05.
+
+```{r fig.width = 10, fig.height = 4}
+ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 2.0) & 
+                               ToothGrowth$supplement == "orange juice",], 
+       aes(x = dose, y = length, fill = supplement)) +
+     geom_boxplot(alpha = 0.5) +
+     scale_fill_brewer(palette = "Set1") +
+     stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+     ggtitle("FIGURE 7: orange-juice-dose-0.5 vs orange-juice-dose-2.0")
+```
+
+* **Reject** Ho: *mu*_orange-juice-dose-1.0 = *mu*_orange-juice-dose-2.0 as P-value' = `r padjust[6]` <= *alpha* = 0.05.
+
+```{r fig.width = 10, fig.height = 4}
+ggplot(data = ToothGrowth[(ToothGrowth$dose == 1.0 | ToothGrowth$dose == 2.0) & 
+                               ToothGrowth$supplement == "orange juice",], 
+       aes(x = dose, y = length, fill = supplement)) +
+     geom_boxplot(alpha = 0.5) +
+     scale_fill_brewer(palette = "Set1") +
+     stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+     ggtitle("FIGURE 8: orange-juice-dose-1.0 vs orange-juice-dose-2.0")
+```
+
+* **Reject** Ho: *mu*_ascorbic-acid-dose-0.5 = *mu*_ascorbic-acid-dose-1.0 as P-value' = `r padjust[7]` <= *alpha* = 0.05.
+
+```{r fig.width = 10, fig.height = 4}
+ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 1.0) & 
+                               ToothGrowth$supplement == "ascorbic acid",], 
+       aes(x = dose, y = length, fill = supplement)) +
+     geom_boxplot(alpha = 0.5) +
+     scale_fill_brewer(palette = "Set1") +
+     stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+     ggtitle("FIGURE 9: ascorbic-acid-dose-0.5 vs ascorbic-acid-dose-1.0")
+```
+
+* **Reject** Ho: *mu*_ascorbic-acid-dose-0.5 = *mu*_ascorbic-acid-dose-2.0 as P-value' = `r padjust[8]` <= *alpha* = 0.05.
+
+```{r fig.width = 10, fig.height = 4}
+ggplot(data = ToothGrowth[(ToothGrowth$dose == 0.5 | ToothGrowth$dose == 2.0) & 
+                               ToothGrowth$supplement == "ascorbic acid",], 
+       aes(x = dose, y = length, fill = supplement)) +
+     geom_boxplot(alpha = 0.5) +
+     scale_fill_brewer(palette = "Set1") +
+     stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+     ggtitle("FIGURE 10: ascorbic-acid-dose-0.5 vs ascorbic-acid-dose-2.0")
+```
+
+* **Reject** Ho: *mu*_ascorbic-acid-dose-1.0 = *mu*_ascorbic-acid-dose-2.0 as P-value' = `r padjust[9]` <= *alpha* = 0.05.
+
+```{r fig.width = 10, fig.height = 4}
+ggplot(data = ToothGrowth[(ToothGrowth$dose == 1 | ToothGrowth$dose == 2) & 
+                               ToothGrowth$supplement == "ascorbic acid",], 
+       aes(x = dose, y = length, fill = supplement)) +
+     geom_boxplot(alpha = 0.5) +
+     scale_fill_brewer(palette = "Set1") +
+     stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.. ), 
+                  linetype = "dotted", position = position_dodge(0.75), size = 1, width = .76, color = "black") +
+     ggtitle("FIGURE 9: ascorbic-acid-dose-1.0 vs ascorbic-acid-dose-2.0")
+```
+
+
+
+## Conclusions and assumptions
+
+
+Assuming that the means of the different samples were normally distributed, and that the data used to carry out these tests was sampled independently from the populations that corresponded with the test in question. We perfomed 9 different t-tests at the 95% significance level. Based on these tests, and the Benjamini-Hochberg adjusted critical p-value, we can conclude that:
+
+Guinea pig tooth length was significantly affected by delivery method at the 0.5 and 1.0 mg/day vitamin C dosages. Guinea pigs that received vitamin C through orange juice at these dosages tended to have longer odontoblast lengths than those that received ascorbic acid.
+
+Guinea pig tooth length was also significantly affected by the dosage of vitamin C; a higher dosage corresponded with a larger tooth length, regardless of which delivery method was used.
